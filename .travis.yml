@@ -1,0 +1,21 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t tonsuchat/react-test -f ./client/Dockerfile.dev ./client
+  # we can also add a server side docker image for testing purpose right here
+
+script:
+  - docker run -e CI=true tonsuchat/react-test npm test
+  # we can also add a server side docker container for testing purpose right here
+
+after_success:
+  - docker build -t tonsuchat/multi-client ./client
+  - docker build -t tonsuchat/multi-nginx ./nginx
+  - docker build -t tonsuchat/multi-server ./server
+  - docker build -t tonsuchat/multi-worker ./worker
+  # take those images and push them to docker hub
+  # - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # docker push tonsuchat/multi-client
+  # docker push ...
